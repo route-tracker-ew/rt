@@ -1,0 +1,42 @@
+distance-matrix:
+  path: ${DISTANCE-MATRIX-PATH:https://api.distancematrix.ai/maps/api/distancematrix/json}
+  key: ${DISTANCE-MATRIX-KEY:JyGlYgCRX5eqyWpfmWVZg4ujbCMH3ClB7OLEWPV9ar9biH10nOxrzQwi1JxIoKMO}
+
+endpoint:
+  api:
+    root: route-tracker
+
+tracker:
+  db:
+    user: ${TRACKER_DATABASE_USER:postgres}
+    password: ${TRACKER_DATABASE_PASSWORD:11111}
+    name: ${TRACKER_DATABASE_NAME:delivery}
+    jdbcUrl: jdbc:postgresql://${TRACKER_DATABASE_HOST:localhost}:${TRACKER_DATABASE_PORT:5432}/${tracker.db.name}
+
+spring:
+  profiles:
+    active: ${REPORTING_PROFILE:test}
+  application:
+    name: route-tracker
+  datasource:
+    url: ${tracker.db.jdbcUrl}
+    username: ${tracker.db.user}
+    password: ${tracker.db.password}
+
+
+springdoc:
+  api-docs:
+    path: /route-tracker/v3/api-docs
+    enabled: ${TRACKER_SWAGGER_ENABLED:true}
+  swagger-ui:
+    path: /route-tracker/swagger/swagger-ui.html
+    query-config-enabled: true
+    url: /route-tracker/v3/api-docs
+    enabled: ${TRACKER_SWAGGER_ENABLED:true}
+
+telegram:
+  name: EuroWayBot
+  token: 6451173434:AAEhlNOxRj8WibJGHlwOl_7bIyLnHXbKTkA
+
+jwt:
+  secretKey: secretKey_secretKey_secretKey_secretKeysecretKeysecretKeysecretKey
