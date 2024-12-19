@@ -1,7 +1,7 @@
 package com.kpi.routetracker.controller;
 
-import com.kpi.routetracker.controller.payload.CalculateShortestRoutePayload;
-import com.kpi.routetracker.services.CalculateShortestRouteService;
+import com.kpi.routetracker.controller.payload.CalculateRoutePayload;
+import com.kpi.routetracker.services.CalculateRouteService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -18,16 +18,16 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 @RequestMapping("${endpoint.api.root}/shortest-route")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CalculateShortestRouteController {
+public class CalculateRouteController {
 
-    CalculateShortestRouteService calculateShortestRouteService;
+    CalculateRouteService calculateShortestRouteService;
 
     @PostMapping()
-    public ResponseEntity<?> createDistanceMatrix(@Valid @RequestBody CalculateShortestRoutePayload payload, BindingResult bindingResult) throws BindException {
+    public ResponseEntity<?> getRoute(@Valid @RequestBody CalculateRoutePayload payload, BindingResult bindingResult) throws BindException {
         if (bindingResult.hasErrors()) {
             throw new BindException(bindingResult);
         }
-        return ResponseEntity.ok(calculateShortestRouteService.calculateShortestRoute(payload));
+        return ResponseEntity.ok(calculateShortestRouteService.calculateRoute(payload));
     }
 
 }

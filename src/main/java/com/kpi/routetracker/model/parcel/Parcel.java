@@ -74,5 +74,7 @@ public class Parcel implements Serializable {
     private Route route;
 
     private boolean request;
+
+    private boolean accept;
 }
 

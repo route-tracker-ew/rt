@@ -47,6 +47,12 @@ public class ParcelsController {
                                                  HttpServletRequest request) {
         String jwtToken = request.getHeader("authorization").replace("Bearer ", "");
         return ResponseEntity.ok(ParcelMapper.mapper.toDto(parcelService.getSpecifiedParcels(routeId, estimatedPickUp, jwtUtils.extractUsername(jwtToken))));
+
+    }
+
+    @PutMapping("/reject")
+    public ResponseEntity<?> getSpecifiedParcels(@RequestParam Long parcelId) {
+        return ResponseEntity.ok(ParcelMapper.mapper.toDto(parcelService.reject(parcelId)));
     }
 
     @PostMapping()
@@ -69,15 +75,26 @@ public class ParcelsController {
         return ResponseEntity.ok(ParcelMapper.mapper.toDto(parcelService.update(payload)));
     }
 
-    //    @PostMapping()
-    //    public ResponseEntity<?> getAllB(@Valid @RequestBody NewParcelPayload payload, BindingResult bindingResult, UriComponentsBuilder uriComponentsBuilder)
-    //            throws BindException {
-    //        if (bindingResult.hasErrors()) {
-    //            throw new BindException(bindingResult);
-    //        }
-    //        ParcelDto parcel = ParcelMapper.mapper.toDto(parcelService.create(payload));
-    //        return ResponseEntity.created(uriComponentsBuilder.replacePath("route-tracker/parcels/{parcelId}").build(Map.of("parcelId", parcel.getId()))).body(parcel);
-    //
-    //    }
+    @PutMapping("/accept")
+    public ResponseEntity<?> accept(@Valid @RequestBody UpdateParcelPayload payload, BindingResult bindingResult, UriComponentsBuilder uriComponentsBuilder)
+            throws BindException {
+        if (bindingResult.hasErrors()) {
+            throw new BindException(bindingResult);
+        }
+        return ResponseEntity.ok(ParcelMapper.mapper.toDto(parcelService.accept(payload)));
+    }
+
+    @GetMapping("/all/requested")
+    public ResponseEntity<?> getAllReqeusted(HttpServletRequest request) {
+        //        String jwtToken = request.getHeader("authorization").replace("Bearer ", "");
+        //        return ResponseEntity.ok(ParcelMapper.mapper.toDto(parcelService.getRequestParcels(jwtUtils.extractUsername(jwtToken))));
+
+        return ResponseEntity.ok(ParcelMapper.mapper.toDto(parcelService.getRequestParcels("0631536533")));
+    }
+
+    @GetMapping("/all/receiver")
+    public ResponseEntity<?> getAllByPhoneNumber(@RequestParam String phoneNumber) {
+        return ResponseEntity.ok(ParcelMapper.mapper.toDto(parcelService.getAllReceiverParcel(phoneNumber)));
+    }
 
 }

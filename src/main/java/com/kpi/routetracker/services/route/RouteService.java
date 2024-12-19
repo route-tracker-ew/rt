@@ -21,32 +21,32 @@ import java.util.Optional;
 @AllArgsConstructor
 public class RouteService {
 
-    RouteRepository repository;
+        RouteRepository repository;
 
-    AccountService accountService;
+        AccountService accountService;
 
-    CarService carService;
+        CarService carService;
 
-    public List<Route> getAll() {
-        return repository.findAll();
-    }
-
-    public Route create(NewRoutePayload payload) {
-        Optional<Account> account = accountService.getAccountByPhoneNumber(payload.ownerPhoneNumber());
-        if (account.isPresent()) {
-            return repository.save(Route.builder()
-                    .sourceCountry(payload.sourceCountry())
-                    .sourceCity(payload.sourceCity())
-                    .dayOfDepartureFromSource(payload.dayOfDepartureFromSource())
-                    .destinationCountry(payload.destinationCountry())
-                    .destinationCity(payload.destinationCity())
-                    .dayOfDepartureFromDestination(payload.dayOfDepartureFromDestination())
-                    .owners(List.of(account.get()))
-                    .workers(List.of(account.get()))
-                    .build());
+        public List<Route> getAll() {
+            return repository.findAll();
         }
-        throw new IllegalArgumentException("User with phoneNumber: " + payload.ownerPhoneNumber() + " not found");
-    }
+
+        public Route create(NewRoutePayload payload) {
+            Optional<Account> account = accountService.getAccountByPhoneNumber(payload.ownerPhoneNumber());
+            if (account.isPresent()) {
+                return repository.save(Route.builder()
+                        .sourceCountry(payload.sourceCountry())
+                        .sourceCity(payload.sourceCity())
+                        .dayOfDepartureFromSource(payload.dayOfDepartureFromSource())
+                        .destinationCountry(payload.destinationCountry())
+                        .destinationCity(payload.destinationCity())
+                        .dayOfDepartureFromDestination(payload.dayOfDepartureFromDestination())
+                        .owners(List.of(account.get()))
+                        .workers(List.of(account.get()))
+                        .build());
+            }
+            throw new IllegalArgumentException("User with phoneNumber: " + payload.ownerPhoneNumber() + " not found");
+        }
 
     public Route getById(Long id) {
         return repository.findById(id).orElseThrow(() -> new NoSuchElementException("Route with id: " + id + " not found"));

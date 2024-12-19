@@ -1,6 +1,9 @@
+server:
+  port: 8080
+
 distance-matrix:
   path: ${DISTANCE-MATRIX-PATH:https://api.distancematrix.ai/maps/api/distancematrix/json}
-  key: ${DISTANCE-MATRIX-KEY:JyGlYgCRX5eqyWpfmWVZg4ujbCMH3ClB7OLEWPV9ar9biH10nOxrzQwi1JxIoKMO}
+  key: ${DISTANCE-MATRIX-KEY:m6YkyiKmapOm304c7OC5wynl59LxK1E3p6xvNHrchH2c3sbD5lowoyDbNCvknjoX}
 
 endpoint:
   api:

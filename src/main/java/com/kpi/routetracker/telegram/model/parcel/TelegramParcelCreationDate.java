@@ -52,6 +52,7 @@ public class TelegramParcelCreationDate {
                 .route(route)
                 .parcelStatus(ParcelStatus.CHECKING)
                 .request(true)
+                .accept(false)
                 .build();
     }
 }

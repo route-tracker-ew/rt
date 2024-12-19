@@ -21,6 +21,28 @@ public class TelegramNotificationService {
     final TelegramAccountService telegramAccountService;
     final TelegramParcelService telegramParcelService;
 
+
+    public void sendTelegramAcceptParcelNotification(Parcel parcel) {
+        var telegramParcel = TelegramParcelMapper.mapper.toDto(parcel);
+        if (parcel.getSender() != null) {
+            var sender = telegramAccountService.getChatIdByPhoneNumber(parcel.getSender().getPhoneNumber());
+            if (sender != null) {
+                sendNotification(sender, telegramParcel, "Вашу посилку прийняли:\n");
+            }
+        }
+    }
+
+    public void sendTelegramRejectParcelNotification(Parcel parcel) {
+        var telegramParcel = TelegramParcelMapper.mapper.toDto(parcel);
+        if (parcel.getSender() != null) {
+            var sender = telegramAccountService.getChatIdByPhoneNumber(parcel.getSender().getPhoneNumber());
+            if (sender != null) {
+                sendNotification(sender, telegramParcel, "Вашу посилку відхили:\n");
+            }
+        }
+    }
+
+
     public void sendTelegramParcelNotification(Parcel parcel) {
         var telegramParcel = TelegramParcelMapper.mapper.toDto(parcel);
         if (parcel.getSender() != null) {

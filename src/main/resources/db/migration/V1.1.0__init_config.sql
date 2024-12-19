@@ -114,6 +114,7 @@ CREATE TABLE IF NOT EXISTS parcel
     route_id                 BIGINT,
     car_id                   BIGINT,
     request                  boolean default false,
+    accept                   BOOLEAN,
     CONSTRAINT FK_parcel_route
         FOREIGN KEY (route_id)
             REFERENCES route (id)

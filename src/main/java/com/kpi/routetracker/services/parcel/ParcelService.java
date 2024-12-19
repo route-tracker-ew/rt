@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -40,6 +41,17 @@ public class ParcelService {
         return repository.findAll();
     }
 
+    public List<Parcel> getRequestParcels(String phoneNumber) {
+        List<Route> routes = routeService.getByOwnerPhoneNumber(phoneNumber);
+        List<Parcel> parcels = new ArrayList<>();
+        for (Route route : routes) {
+            if (route != null) {
+                parcels.addAll(repository.findAllRequestedByRouteId(route.getId()));
+            }
+        }
+        return parcels;
+    }
+
     public List<Parcel> getSpecifiedParcels(Long routeId, Date estimatedPickUp, String workerPhone) {
         var route = routeService.getById(routeId);
         var account = accountService.getAccountByPhoneNumber(workerPhone).orElseThrow(NotFoundException::new);
@@ -47,7 +59,8 @@ public class ParcelService {
         var dates = calculateDepartureDates(estimatedPickUp, route.getDayOfDepartureFromSource(), route.getDayOfDepartureFromDestination());
 
         if (route.getWorkers().contains(account)) {
-            return repository.findAllByRouteIdAndEstimatedPickUpDateBetween(route.getId(), dates.getLeft(), dates.getRight());
+            var r = repository.findAllByRouteIdAndEstimatedPickUpDateBetween(route.getId(), dates.getLeft(), dates.getRight());
+            return repository.findAllByRouteIdAndEstimatedPickUpDateBetween2(route.getId());
         }
         return null;
     }
@@ -87,6 +100,7 @@ public class ParcelService {
                 .price(payload.price())
                 .parcelStatus(ParcelStatus.CHECKING)
                 .route(route)
+                .accept(true)
                 .build());
 
         telegramNotificationService.sendTelegramParcelNotification(parcel);
@@ -122,6 +136,51 @@ public class ParcelService {
         return null;
     }
 
+    public Parcel accept(UpdateParcelPayload payload) {
+        var savedParcel = getById(payload.id());
+
+        if (savedParcel != null) {
+            Account sender = getAccount(payload.senderPhoneNumber(), payload.senderFirstName(), payload.senderLastName());
+            Account receiver = getAccount(payload.receiverPhoneNumber(), payload.receiverFirstName(), payload.receiverLastName());
+
+            savedParcel.setSender(sender);
+            savedParcel.setSourceCountry(payload.sourceCountry());
+            savedParcel.setSourceCity(payload.sourceCity());
+            savedParcel.setSourceStreet(payload.sourceStreet());
+            savedParcel.setSourceHouseNumber(payload.sourceHouseNumber());
+            savedParcel.setSourceFlatNumber(payload.sourceFlatNumber());
+            savedParcel.setReceiver(receiver);
+            savedParcel.setDestinationCountry(payload.destinationCountry());
+            savedParcel.setDestinationCity(payload.destinationCity());
+            savedParcel.setDestinationStreet(payload.destinationStreet());
+            savedParcel.setDestinationHouseNumber(payload.destinationHouseNumber());
+            savedParcel.setDestinationFlatNumber(payload.destinationFlatNumber());
+            savedParcel.setAmount(payload.amount());
+            savedParcel.setPrice(payload.price());
+            savedParcel.setEstimatedPicKUpDate(payload.estimatedPicKUpDate());
+            savedParcel.setRequest(false);
+            savedParcel.setAccept(true);
+
+            var newParcel = repository.save(savedParcel);
+            telegramNotificationService.sendTelegramAcceptParcelNotification(newParcel);
+            return newParcel;
+        }
+        return null;
+    }
+
+    public Parcel reject(Long parcelId) {
+        var savedParcel = getById(parcelId);
+
+        if (savedParcel != null) {
+            savedParcel.setRequest(false);
+            savedParcel.setAccept(false);
+            var newParcel = repository.save(savedParcel);
+            telegramNotificationService.sendTelegramRejectParcelNotification(newParcel);
+            return newParcel;
+        }
+        return null;
+    }
+
     public Route getRouteById(Long routeId) {
         Route route = routeService.getById(routeId);
         if (route == null) {
@@ -142,15 +201,16 @@ public class ParcelService {
         return repository.findByRoute(route);
     }
 
-    public List<Parcel> getAllByDateAndRoute(Date date, Route route) {
-        return repository.findAllByEstimatedPicKUpDateAndRoute(date, route);
-    }
-
     public List<Parcel> getAllBySenderPhoneNumber(String senderPhoneNumber) {
         return repository.findAllBySender_PhoneNumber(senderPhoneNumber);
     }
 
     public Parcel getById(Long parcelId) {
         return repository.getReferenceById(parcelId);
+    }
+
+    public List<Parcel> getAllReceiverParcel(String phoneNumber) {
+        var receiver = accountService.getAccountByPhoneNumber(phoneNumber);
+        return repository.getAllByReceiver(receiver.get());
     }
 }
